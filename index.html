@@ -32,14 +32,20 @@ body {
 @keyframes coverPulse { 0%{ transform:scale(1);} 50%{ transform:scale(1.01);} 100%{ transform:scale(1);} }
 .particle-orbit { position:absolute; width:4px; height:4px; background:#0f1f3a; border-radius:50%; opacity:0.5; transform-origin:center; filter: drop-shadow(0 0 5px #1e3a5f); transition: box-shadow 0.3s ease, opacity 0.3s ease; }
 .orbit-circle { position:absolute; border:1px solid #1e3a5f; border-radius:50%; opacity:0.15; width:100%; height:100%; top:0; left:0; pointer-events:none; }
-h1 { font-size:3em; margin-bottom:10px; letter-spacing:3px; text-shadow:0 0 30px #1e3a5f,0 0 50px #1e3a5f; animation: neonPulse 2s ease-in-out infinite alternate; }
-h3 { font-size:1.5em; margin-bottom:20px; text-shadow:0 0 20px #1e3a5f; animation: neonPulse 2s ease-in-out infinite alternate-reverse; }
+h1 { font-size:3em; margin-bottom:10px; letter-spacing:3px; text-shadow:0 0 30px #1e3a5f,0 0 50px #1e3a5f; animation: neonPulse 2s ease-in-out infinite alternate; transition: all 0.6s ease-out; }
+h3 { font-size:1.5em; margin-bottom:20px; text-shadow:0 0 20px #1e3a5f; animation: neonPulse 2s ease-in-out infinite alternate-reverse; transition: all 0.6s ease-out; }
 @keyframes neonPulse { from { text-shadow:0 0 15px #1e3a5f;} to { text-shadow:0 0 40px #1e3a5f;} }
 button { margin-top:20px; padding:15px 50px; background:#001022; color:#1e3a5f; border:none; font-size:18px; border-radius:50px; cursor:pointer; transition:0.5s; }
 button:hover { background:#001144; color:#66b3ff; transform: scale(1.1); }
 #countdown { font-size:2em; margin-top:20px; text-shadow:0 0 30px #1e3a5f,0 0 50px #1e3a5f; animation: neonPulse 2s ease-in-out infinite alternate; }
 .falling-star { position:absolute; width:2px; height:2px; background:white; border-radius:50%; opacity:0.8; pointer-events:none; }
 canvas#mouseCanvas { position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:10; }
+
+/* Модальное окно */
+#listenModal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); backdrop-filter:blur(8px); justify-content:center; align-items:center; z-index:20; flex-direction:column; transition:opacity 0.5s; }
+#modalContent { background:#0a0f1f; padding:40px; border-radius:20px; display:flex; flex-direction:column; gap:15px; align-items:center; transform:scale(0.8); opacity:0; transition:all 0.5s ease-out; }
+.platformBtn { color:white; padding:12px 20px; border-radius:10px; text-decoration:none; display:flex; align-items:center; gap:8px; transition:0.3s; }
+.platformBtn:hover { transform:scale(1.05); }
 </style>
 </head>
 <body>
@@ -56,8 +62,24 @@ canvas#mouseCanvas { position:fixed; top:0; left:0; width:100%; height:100%; poi
         <div class="orbit-circle"></div>
     </div>
     <br>
-    <button onclick="window.location.href='https://yourlink.com'">LISTEN NOW</button>
+    <button id="listenBtn">LISTEN NOW</button>
     <div id="countdown"></div>
+</div>
+
+<!-- Модальное окно -->
+<div id="listenModal">
+  <div id="modalContent">
+    <h2>Choose Platform</h2>
+    <div style="display:flex;flex-wrap:wrap;gap:15px;justify-content:center;">
+      <a class="platformBtn" href="#" target="_blank" style="background:#1DB954;"><img src="spotify-logo.png" style="width:20px;height:20px;"> Spotify</a>
+      <a class="platformBtn" href="#" target="_blank" style="background:#FA233B;"><img src="apple-logo.png" style="width:20px;height:20px;"> Apple Music</a>
+      <a class="platformBtn" href="#" target="_blank" style="background:#FF5500;"><img src="soundcloud-logo.png" style="width:20px;height:20px;"> SoundCloud</a>
+      <a class="platformBtn" href="#" target="_blank" style="background:#FF0000;"><img src="youtube-logo.png" style="width:20px;height:20px;"> YouTube Music</a>
+      <a class="platformBtn" href="#" target="_blank" style="background:#FF0000;"><img src="youtube-logo.png" style="width:20px;height:20px;"> YouTube Lyrics</a>
+      <a class="platformBtn" href="#" target="_blank" style="background:#FFCC00;"><img src="yandex-logo.png" style="width:20px;height:20px;"> Yandex Music</a>
+    </div>
+    <button id="closeModal" style="margin-top:20px;padding:10px 25px;border:none;border-radius:10px;background:#001144;color:#66b3ff;cursor:pointer;">Close</button>
+  </div>
 </div>
 
 <script>
@@ -90,7 +112,7 @@ for(let i=0;i<orbitParticleCount;i++){
     particles.push(p);
 }
 
-// === Canvas mouse burst с дальними траекториями ===
+// === Canvas mouse burst ===
 const canvas = document.getElementById('mouseCanvas');
 const ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth;
@@ -99,7 +121,6 @@ window.addEventListener('resize', ()=>{ canvas.width = window.innerWidth; canvas
 const mouseStars = [];
 let mouseX = window.innerWidth/2;
 let mouseY = window.innerHeight/2;
-
 document.addEventListener('mousemove', e=>{
     mouseX = e.clientX;
     mouseY = e.clientY;
@@ -108,21 +129,9 @@ document.addEventListener('mousemove', e=>{
         const angle = Math.random()*Math.PI*2;
         const speed = 2 + Math.random()*2;
         const life = 60 + Math.random()*30;
-        mouseStars.push({
-            x: mouseX,
-            y: mouseY,
-            size: 1 + Math.random()*2,
-            opacity: 0.6 + Math.random()*0.4,
-            angle: angle,
-            speed: speed,
-            life: life
-        });
+        mouseStars.push({x:mouseX,y:mouseY,size:1+Math.random()*2,opacity:0.6+Math.random()*0.4,angle,speed,life});
     }
-    const x = (mouseX/window.innerWidth -0.5)*30;
-    const y = (mouseY/window.innerHeight -0.5)*30;
-    document.body.style.background = `radial-gradient(circle at ${50+x}% ${50+y}%, #00000d, #000018)`;
 });
-
 function animateMouseStars(){
     ctx.clearRect(0,0,canvas.width,canvas.height);
     for(let i=mouseStars.length-1;i>=0;i--){
@@ -133,8 +142,7 @@ function animateMouseStars(){
         s.size *= 0.98;
         s.life--;
         if(s.life <=0 || s.opacity<=0 || s.x<0 || s.x>canvas.width || s.y<0 || s.y>canvas.height){ 
-            mouseStars.splice(i,1); 
-            continue; 
+            mouseStars.splice(i,1); continue; 
         }
         ctx.fillStyle = `rgba(102,179,255,${s.opacity})`;
         ctx.beginPath();
@@ -145,7 +153,7 @@ function animateMouseStars(){
 }
 requestAnimationFrame(animateMouseStars);
 
-// === Анимация частиц с отклонением от мышки ===
+// === Анимация частиц вокруг обложки ===
 let lastTime = performance.now();
 function animateParticles(time){
     const dt = time - lastTime;
@@ -188,7 +196,7 @@ function updateCountdown(){
 const interval=setInterval(updateCountdown,1000);
 updateCountdown();
 
-// === Фоновый трек с фильтром + реверб, зацикливание 00:07-00:21 ===
+// === Фоновый трек с фильтром и ревербом, зацикливание 00:07-00:21 ===
 let audioCtx, source, gainNode, convolver, filter, audioElement;
 document.body.addEventListener('click', startAudioOnce, {once:true});
 function startAudioOnce(){
@@ -244,7 +252,32 @@ function createFallingStar(){
     },16);
 }
 setInterval(createFallingStar,10000);
-</script>
 
+// === Модалка ===
+const listenBtn = document.getElementById('listenBtn');
+const modal = document.getElementById('listenModal');
+const modalContent = document.getElementById('modalContent');
+const closeModal = document.getElementById('closeModal');
+const title = document.querySelector('.content h1');
+
+listenBtn.addEventListener('click', ()=>{
+    modal.style.display='flex';
+    setTimeout(()=>{ modalContent.style.opacity=1; modalContent.style.transform='scale(1)'; },50);
+    cover.style.transition='all 0.6s ease-out';
+    cover.style.transform='translateY(-30px) scale(1.02) blur(2px)';
+    title.style.transition='all 0.6s ease-out';
+    title.style.transform='translateY(-30px) blur(1px)';
+});
+
+function closeFunc(){
+    modalContent.style.opacity=0;
+    modalContent.style.transform='scale(0.8)';
+    cover.style.transform='translateY(0) scale(1)';
+    title.style.transform='translateY(0) blur(0)';
+    setTimeout(()=>{ modal.style.display='none'; },500);
+}
+closeModal.addEventListener('click', closeFunc);
+modal.addEventListener('click', e=>{ if(e.target===modal) closeFunc(); });
+</script>
 </body>
 </html>
