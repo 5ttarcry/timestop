@@ -4,8 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TIMESTOP — 5tarcry</title>
-
-<!-- Google Font для космического вайба -->
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
 
 <style>
@@ -23,7 +21,7 @@ body {
     perspective:800px;
 }
 
-/* Фоновые звёзды */
+/* === Фоновые звёзды === */
 .stars {
     position:fixed;
     width:100%;
@@ -35,26 +33,26 @@ body {
     position:absolute;
     width:2px;
     height:2px;
-    background:white;
+    background:#1e3a5f;
     border-radius:50%;
-    opacity:0.6;
+    opacity:0.5;
     animation: twinkle 3s infinite alternate;
 }
 @keyframes twinkle {
     0% { opacity:0.2; transform: scale(0.5);}
-    50% { opacity:1; transform: scale(1.3);}
+    50% { opacity:0.6; transform: scale(1.2);}
     100% { opacity:0.2; transform: scale(0.5);}
 }
 
-/* Живой фон */
+/* === Живой фон === */
 @keyframes bgGradient {
-    0% { background: radial-gradient(circle at 50% 50%, #0a0a0a, #050013);}
-    50% { background: radial-gradient(circle at 30% 30%, #050013, #000010);}
-    100% { background: radial-gradient(circle at 50% 50%, #0a0a0a, #050013);}
+    0% { background: radial-gradient(circle at 50% 50%, #000014, #000020);}
+    50% { background: radial-gradient(circle at 30% 30%, #000018, #000028);}
+    100% { background: radial-gradient(circle at 50% 50%, #000014, #000020);}
 }
 body { animation: bgGradient 30s ease-in-out infinite; }
 
-/* Контент */
+/* === Контент === */
 .content {
     text-align:center;
     z-index:1;
@@ -65,11 +63,11 @@ body { animation: bgGradient 30s ease-in-out infinite; }
     50% { transform: translateY(10px);}
 }
 
-/* Обложка с глитчем */
+/* === Обложка с глитчем === */
 .cover {
     width:320px;
     border-radius:20px;
-    box-shadow:0 0 60px rgba(255,255,255,0.4);
+    box-shadow:0 0 60px rgba(0,50,120,0.4);
     animation: glitch 1.5s infinite;
     position:relative;
     z-index:2;
@@ -83,72 +81,76 @@ body { animation: bgGradient 30s ease-in-out infinite; }
     100%{ clip: rect(0,320px,50px,0); transform: translate(0,0);}
 }
 
-/* Частицы вокруг обложки */
-.particle {
+/* === Орбитальные частицы вокруг обложки === */
+.particle-orbit {
     position:absolute;
     width:4px;
     height:4px;
-    background: #ff00ff;
+    background:#1e3a5f;
     border-radius:50%;
     opacity:0.5;
-    animation: particleMove 6s linear infinite;
+    transform-origin:center;
+    animation: orbitMove linear infinite, orbitPulse 4s ease-in-out infinite alternate;
 }
-@keyframes particleMove {
-    0% { transform: translate(0,0) scale(0.5); opacity:0.3; }
-    50% { transform: translate(var(--dx), var(--dy)) scale(1); opacity:1; }
-    100% { transform: translate(0,0) scale(0.5); opacity:0.3; }
+@keyframes orbitMove {
+    0% { transform: rotate(0deg) translate(var(--radius)) rotate(0deg); }
+    100% { transform: rotate(360deg) translate(var(--radius)) rotate(-360deg); }
+}
+@keyframes orbitPulse {
+    0%,100% { transform: rotate(var(--angle)) translate(var(--radius)) rotate(calc(-1*var(--angle))); }
+    50% { transform: rotate(var(--angle)) translate(calc(var(--radius) + 5px)) rotate(calc(-1*var(--angle))); }
 }
 
-/* Заголовки */
+/* === Заголовки === */
 h1 {
     font-size:3em;
     margin-bottom:10px;
-    letter-spacing: 3px;
-    text-shadow: 0 0 30px #ff00ff, 0 0 50px #ff00ff;
+    letter-spacing:3px;
+    text-shadow:0 0 30px #1e3a5f,0 0 50px #1e3a5f;
     animation: neonPulse 2s ease-in-out infinite alternate;
 }
 h3 {
     font-size:1.5em;
     margin-bottom:20px;
-    text-shadow:0 0 20px #ff00ff;
+    text-shadow:0 0 20px #1e3a5f;
     animation: neonPulse 2s ease-in-out infinite alternate-reverse;
 }
 @keyframes neonPulse {
-    from { text-shadow:0 0 20px #ff00ff;}
-    to { text-shadow:0 0 50px #ff66ff;}
+    from { text-shadow:0 0 15px #1e3a5f;}
+    to { text-shadow:0 0 40px #1e3a5f;}
 }
 
-/* Кнопка */
+/* === Кнопка === */
 button {
     margin-top:20px;
     padding:15px 50px;
-    background:white;
-    color:black;
+    background:#001022;
+    color:#1e3a5f;
     border:none;
     font-size:18px;
     border-radius:50px;
     cursor:pointer;
     transition:0.5s;
 }
-button:hover { background:#ff00ff; color:black; transform: scale(1.15); }
+button:hover { background:#001144; color:#66b3ff; transform: scale(1.15); }
 
-/* Обратный отсчёт */
+/* === Обратный отсчёт === */
 #countdown {
     font-size:2em;
     margin-top:20px;
-    text-shadow:0 0 30px #ff00ff, 0 0 50px #ff66ff;
+    text-shadow:0 0 30px #1e3a5f,0 0 50px #1e3a5f;
     animation: neonPulse 2s ease-in-out infinite alternate;
 }
 
-/* Аудиоплеер */
+/* === Аудиоплеер === */
 audio {
     margin-top:25px;
     outline:none;
-    filter: drop-shadow(0 0 10px #ff00ff);
+    filter: drop-shadow(0 0 10px #1e3a5f);
 }
 
 /* Плавность для всего */
-button, #countdown, h1, h3 {
+button,#countdown,h1,h3 {
     transition: transform 0.5s, opacity 0.5s;
 }
 </style>
@@ -176,7 +178,7 @@ button, #countdown, h1, h3 {
 </div>
 
 <script>
-// Генерация звёзд
+// --- Звёзды на фоне ---
 const starsCount = 120;
 const starsContainer = document.querySelector('.stars');
 for(let i=0;i<starsCount;i++){
@@ -188,27 +190,28 @@ for(let i=0;i<starsCount;i++){
     starsContainer.appendChild(star);
 }
 
-// Частицы вокруг обложки
+// --- Орбитальные частицы вокруг обложки ---
 const cover = document.getElementById('cover');
-const particleCount = 25;
-for(let i=0;i<particleCount;i++){
+const orbitParticleCount = 12;
+for(let i=0;i<orbitParticleCount;i++){
     const p = document.createElement('div');
-    p.className='particle';
-    const dx = (Math.random()*200-100)+'px';
-    const dy = (Math.random()*200-100)+'px';
-    p.style.setProperty('--dx', dx);
-    p.style.setProperty('--dy', dy);
+    p.className='particle-orbit';
+    const radius = 60 + Math.random()*40;
+    p.style.setProperty('--radius', radius+'px');
+    p.style.setProperty('--angle', (i*(360/orbitParticleCount))+'deg');
+    const speed = 20 + Math.random()*15;
+    p.style.animationDuration = speed+'s, 4s';
     cover.parentElement.appendChild(p);
 }
 
-// Параллакс для фона по движению мыши
+// --- Параллакс фона по мыши ---
 document.addEventListener('mousemove', e=>{
-    const x = (e.clientX/window.innerWidth -0.5)*30;
-    const y = (e.clientY/window.innerHeight -0.5)*30;
-    document.body.style.background = `radial-gradient(circle at ${50+x}% ${50+y}%, #0a0a0a, #050013)`;
+    const x = (e.clientX/window.innerWidth -0.5)*20;
+    const y = (e.clientY/window.innerHeight -0.5)*20;
+    document.body.style.background = `radial-gradient(circle at ${50+x}% ${50+y}%, #000014, #000020)`;
 });
 
-// Обратный отсчёт
+// --- Обратный отсчёт ---
 const countdownEl = document.getElementById('countdown');
 const releaseDate = new Date('March 20, 2026 00:00:00').getTime();
 function updateCountdown(){
