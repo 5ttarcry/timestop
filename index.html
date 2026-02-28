@@ -18,14 +18,13 @@ body {
     align-items:center;
     flex-direction:column;
     perspective:800px;
-    transition: transform 0.05s;
     cursor:pointer;
 }
 
 /* Звёзды */
 .stars { position:fixed; width:100%; height:100%; z-index:-5; overflow:hidden; }
-.star { position:absolute; width:2px; height:2px; background:#0f1f3a; border-radius:50%; opacity:0.5; animation: twinkle 3s infinite alternate; }
-@keyframes twinkle { 0% { opacity:0.2; transform: scale(0.5);} 50% { opacity:0.6; transform: scale(1.2);} 100% { opacity:0.2; transform: scale(0.5);} }
+.star { position:absolute; width:2px; height:2px; background:#0f1f3a; border-radius:50%; opacity:0.6; animation: twinkle 3s infinite alternate; }
+@keyframes twinkle { 0% { opacity:0.3; transform: scale(0.5);} 50% { opacity:0.9; transform: scale(1.2);} 100% { opacity:0.3; transform: scale(0.5);} }
 
 /* Космический туман */
 .cosmic-fog {
@@ -37,10 +36,7 @@ body {
     pointer-events:none;
     animation: fogMove 60s linear infinite;
 }
-@keyframes fogMove {
-    0%{ background-position:0 0; }
-    100%{ background-position:200% 200%; }
-}
+@keyframes fogMove { 0%{ background-position:0 0; } 100%{ background-position:200% 200%; } }
 
 /* Контент */
 .content { text-align:center; z-index:1; position:relative; }
@@ -50,35 +46,16 @@ body {
 .cover {
     width:320px; border-radius:20px;
     box-shadow:0 0 60px rgba(0,50,120,0.4);
-    animation: slowFloat 35s ease-in-out infinite alternate;
+    animation: slowFloat 35s ease-in-out infinite alternate, coverPulse 1s ease-in-out infinite alternate;
     position:relative; z-index:2;
     transition: box-shadow 0.5s ease-in-out, transform 0.3s ease-in-out;
 }
 @keyframes slowFloat { 0% { transform: translateY(-2px);} 50% { transform: translateY(2px);} 100% { transform: translateY(-2px);} }
-
-/* Пульс обложки в такт */
-.cover-pulse { animation: coverPulse 1s ease-in-out infinite alternate; }
 @keyframes coverPulse { 0%{ transform:scale(1);} 50%{ transform:scale(1.01);} 100%{ transform:scale(1);} }
 
 /* Частицы */
-.particle-orbit {
-    position:absolute; width:4px; height:4px;
-    background:#0f1f3a; border-radius:50%; opacity:0.5;
-    transform-origin:center;
-    filter: drop-shadow(0 0 5px #1e3a5f);
-    transition: box-shadow 0.3s ease, opacity 0.3s ease;
-}
-
-/* Микро-круги вокруг обложки */
-.orbit-circle {
-    position:absolute;
-    border:1px solid #1e3a5f;
-    border-radius:50%;
-    opacity:0.15;
-    width:100%; height:100%;
-    top:0; left:0;
-    pointer-events:none;
-}
+.particle-orbit { position:absolute; width:4px; height:4px; background:#0f1f3a; border-radius:50%; opacity:0.5; transform-origin:center; filter: drop-shadow(0 0 5px #1e3a5f); transition: box-shadow 0.3s ease, opacity 0.3s ease; }
+.orbit-circle { position:absolute; border:1px solid #1e3a5f; border-radius:50%; opacity:0.15; width:100%; height:100%; top:0; left:0; pointer-events:none; }
 
 /* Заголовки */
 h1 { font-size:3em; margin-bottom:10px; letter-spacing:3px; text-shadow:0 0 30px #1e3a5f,0 0 50px #1e3a5f; animation: neonPulse 2s ease-in-out infinite alternate; }
@@ -91,6 +68,12 @@ button:hover { background:#001144; color:#66b3ff; transform: scale(1.1); }
 
 /* Обратный отсчёт */
 #countdown { font-size:2em; margin-top:20px; text-shadow:0 0 30px #1e3a5f,0 0 50px #1e3a5f; animation: neonPulse 2s ease-in-out infinite alternate; }
+
+/* Падающая звезда */
+.falling-star { position:absolute; width:2px; height:2px; background:white; border-radius:50%; opacity:0.8; pointer-events:none; }
+
+/* След за мышкой */
+.mouse-trail { position:absolute; width:4px; height:4px; background:#66b3ff; border-radius:50%; opacity:0.2; pointer-events:none; }
 </style>
 </head>
 <body>
@@ -142,14 +125,28 @@ for(let i=0;i<orbitParticleCount;i++){
     particles.push(p);
 }
 
-// === Параллакс мышью ===
+// === Параллакс мышью + след + отклонение частиц ===
+let mouseX = window.innerWidth/2;
+let mouseY = window.innerHeight/2;
 document.addEventListener('mousemove', e=>{
-    const x = (e.clientX/window.innerWidth -0.5)*30;
-    const y = (e.clientY/window.innerHeight -0.5)*30;
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+
+    // След
+    const trail = document.createElement('div');
+    trail.className='mouse-trail';
+    trail.style.left=mouseX+'px';
+    trail.style.top=mouseY+'px';
+    document.body.appendChild(trail);
+    setTimeout(()=>{ trail.remove(); },500);
+
+    // Параллакс фона
+    const x = (mouseX/window.innerWidth -0.5)*30;
+    const y = (mouseY/window.innerHeight -0.5)*30;
     document.body.style.background = `radial-gradient(circle at ${50+x}% ${50+y}%, #00000d, #000018)`;
 });
 
-// === Анимация частиц ===
+// === Анимация частиц с отклонением от мышки ===
 let lastTime = performance.now();
 function animateParticles(time){
     const dt = time - lastTime;
@@ -159,8 +156,20 @@ function animateParticles(time){
         angle += parseFloat(p.dataset.speed)*dt;
         p.dataset.angle = angle;
         const radius = parseFloat(p.dataset.radius);
-        const offsetX = Math.sin(angle*3)*1.5;
-        const offsetY = Math.cos(angle*2)*1.5;
+        let offsetX = Math.sin(angle*3)*1.5;
+        let offsetY = Math.cos(angle*2)*1.5;
+
+        // Влияние мышки
+        const rect = coverContainer.getBoundingClientRect();
+        const px = rect.left + rect.width/2;
+        const py = rect.top + rect.height/2;
+        const dx = mouseX - (px + radius*Math.cos(angle));
+        const dy = mouseY - (py + radius*Math.sin(angle));
+        const dist = Math.sqrt(dx*dx+dy*dy);
+        const influence = Math.min(30/dist,0.5);
+        offsetX -= dx*influence;
+        offsetY -= dy*influence;
+
         p.style.transform = `translate(${radius*Math.cos(angle)+offsetX}px, ${radius*Math.sin(angle)+offsetY}px)`;
     });
     requestAnimationFrame(animateParticles);
@@ -183,30 +192,25 @@ function updateCountdown(){
 const interval=setInterval(updateCountdown,1000);
 updateCountdown();
 
-// === Фоновый трек с фильтром + реверб ===
+// === Фоновый трек с фильтром + реверб, зацикливание 00:07-00:21 ===
 let audioCtx, source, gainNode, convolver, filter, audioElement;
 document.body.addEventListener('click', startAudioOnce, {once:true});
-
 function startAudioOnce(){
     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     audioElement = new Audio('timestop.mp3');
-    audioElement.loop = true;
     audioElement.volume = 0.25;
-
     source = audioCtx.createMediaElementSource(audioElement);
 
-    // Реверб через ConvolverNode
+    // Реверб
     convolver = audioCtx.createConvolver();
     const irBuffer = audioCtx.createBuffer(2, audioCtx.sampleRate*0.3, audioCtx.sampleRate);
     for(let channel=0; channel<irBuffer.numberOfChannels; channel++){
         const nowBuffering = irBuffer.getChannelData(channel);
-        for(let i=0;i<irBuffer.length;i++){
-            nowBuffering[i] = (Math.random()*2-1)*0.2;
-        }
+        for(let i=0;i<irBuffer.length;i++){ nowBuffering[i] = (Math.random()*2-1)*0.2; }
     }
     convolver.buffer = irBuffer;
 
-    // Фильтр (lowpass)
+    // Фильтр lowpass
     filter = audioCtx.createBiquadFilter();
     filter.type = "lowpass";
     filter.frequency.value = 1200;
@@ -217,10 +221,12 @@ function startAudioOnce(){
 
     source.connect(convolver).connect(filter).connect(gainNode).connect(audioCtx.destination);
     source.connect(filter).connect(gainNode).connect(audioCtx.destination);
-
     audioElement.play();
 
-    setInterval(()=>{ if(audioElement.currentTime>=20) audioElement.currentTime=0; },50);
+    // Зацикливание 00:07-00:21
+    setInterval(()=>{
+        if(audioElement.currentTime >= 21 || audioElement.currentTime < 7) audioElement.currentTime = 7;
+    },50);
 }
 
 // === Пульс частиц и обложки в такт BPM ===
@@ -232,20 +238,30 @@ setInterval(()=>{
         p.style.opacity = glow;
         p.style.filter = `drop-shadow(0 0 ${5+glow*8}px #66b3ff)`;
     });
-    document.getElementById('cover').style.transform = `scale(${1+glow*0.02})`; // мягкий пульс
+    document.getElementById('cover').style.transform = `scale(${1+glow*0.02})`;
 }, beatInterval/2);
 
-// === Мягкая тряска экрана ===
-let shakeToggle = false;
-setInterval(()=>{
-    shakeToggle = !shakeToggle;
-    document.body.style.transform = shakeToggle ? 'translate(0.7px,0.3px)' : 'translate(-0.7px,-0.3px)';
-}, beatInterval/2);
+// === Падающая звезда раз в 10 секунд ===
+function createFallingStar(){
+    const star = document.createElement('div');
+    star.className='falling-star';
+    star.style.top='0px';
+    star.style.left=Math.random()*window.innerWidth+'px';
+    document.body.appendChild(star);
 
-// === Реакция мыши на обложку ===
-const coverEl = document.getElementById('cover');
-coverEl.addEventListener('mouseenter', ()=>{ coverEl.style.boxShadow='0 0 80px #66b3ff'; });
-coverEl.addEventListener('mouseleave', ()=>{ coverEl.style.boxShadow='0 0 60px rgba(0,50,120,0.4)'; });
+    const angle = Math.random()*Math.PI/3 - Math.PI/6; // +-30 градусов
+    const speed = 3 + Math.random()*2;
+    let posX = parseFloat(star.style.left);
+    let posY = 0;
+    const anim = setInterval(()=>{
+        posX += Math.sin(angle)*speed;
+        posY += Math.cos(angle)*speed;
+        star.style.top = posY+'px';
+        star.style.left = posX+'px';
+        if(posY>window.innerHeight || posX<0 || posX>window.innerWidth){ star.remove(); clearInterval(anim); }
+    },16);
+}
+setInterval(createFallingStar,10000);
 </script>
 
 </body>
