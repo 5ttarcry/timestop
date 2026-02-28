@@ -23,26 +23,42 @@ body {
 }
 
 /* Звёзды */
-.stars { position:fixed; width:100%; height:100%; z-index:-3; overflow:hidden; }
+.stars { position:fixed; width:100%; height:100%; z-index:-5; overflow:hidden; }
 .star { position:absolute; width:2px; height:2px; background:#0f1f3a; border-radius:50%; opacity:0.5; animation: twinkle 3s infinite alternate; }
 @keyframes twinkle { 0% { opacity:0.2; transform: scale(0.5);} 50% { opacity:0.6; transform: scale(1.2);} 100% { opacity:0.2; transform: scale(0.5);} }
 
-/* Фон */
-@keyframes bgGradient { 0% { background: radial-gradient(circle at 50% 50%, #000010, #000018);} 50% { background: radial-gradient(circle at 30% 30%, #000012, #000020);} 100% { background: radial-gradient(circle at 50% 50%, #000010, #000018);} }
-body { animation: bgGradient 30s ease-in-out infinite; }
+/* Космический туман */
+.cosmic-fog {
+    position:fixed;
+    top:0; left:0;
+    width:100%; height:100%;
+    background: radial-gradient(circle at 30% 30%, rgba(10,20,40,0.05), transparent 70%);
+    z-index:-4;
+    pointer-events:none;
+    animation: fogMove 60s linear infinite;
+}
+@keyframes fogMove {
+    0%{ background-position:0 0; }
+    100%{ background-position:200% 200%; }
+}
 
 /* Контент */
-.content { text-align:center; z-index:1; }
+.content { text-align:center; z-index:1; position:relative; }
 
 /* Обложка */
+.cover-container { position:relative; display:inline-block; }
 .cover {
     width:320px; border-radius:20px;
     box-shadow:0 0 60px rgba(0,50,120,0.4);
-    animation: slowFloat 35s ease-in-out infinite alternate; /* супер медленно */
+    animation: slowFloat 35s ease-in-out infinite alternate;
     position:relative; z-index:2;
-    transition: box-shadow 0.5s ease-in-out;
+    transition: box-shadow 0.5s ease-in-out, transform 0.3s ease-in-out;
 }
 @keyframes slowFloat { 0% { transform: translateY(-2px);} 50% { transform: translateY(2px);} 100% { transform: translateY(-2px);} }
+
+/* Пульс обложки в такт */
+.cover-pulse { animation: coverPulse 1s ease-in-out infinite alternate; }
+@keyframes coverPulse { 0%{ transform:scale(1);} 50%{ transform:scale(1.01);} 100%{ transform:scale(1);} }
 
 /* Частицы */
 .particle-orbit {
@@ -51,6 +67,17 @@ body { animation: bgGradient 30s ease-in-out infinite; }
     transform-origin:center;
     filter: drop-shadow(0 0 5px #1e3a5f);
     transition: box-shadow 0.3s ease, opacity 0.3s ease;
+}
+
+/* Микро-круги вокруг обложки */
+.orbit-circle {
+    position:absolute;
+    border:1px solid #1e3a5f;
+    border-radius:50%;
+    opacity:0.15;
+    width:100%; height:100%;
+    top:0; left:0;
+    pointer-events:none;
 }
 
 /* Заголовки */
@@ -69,12 +96,14 @@ button:hover { background:#001144; color:#66b3ff; transform: scale(1.1); }
 <body>
 
 <div class="stars"></div>
+<div class="cosmic-fog"></div>
 
 <div class="content">
     <h1>TIMESTOP</h1>
     <h3>5tarcry</h3>
-    <div style="position:relative; display:inline-block;" id="cover-container">
+    <div class="cover-container" id="cover-container">
         <img src="cover.png" alt="Timestop Cover" class="cover" id="cover">
+        <div class="orbit-circle"></div>
     </div>
     
     <br>
@@ -96,7 +125,7 @@ for(let i=0;i<starsCount;i++){
     starsContainer.appendChild(star);
 }
 
-// === Частицы ===
+// === Частицы орбиты ===
 const coverContainer = document.getElementById('cover-container');
 const orbitParticleCount = 16;
 const particles = [];
@@ -130,7 +159,7 @@ function animateParticles(time){
         angle += parseFloat(p.dataset.speed)*dt;
         p.dataset.angle = angle;
         const radius = parseFloat(p.dataset.radius);
-        const offsetX = Math.sin(angle*3)*1.5; // минимализм
+        const offsetX = Math.sin(angle*3)*1.5;
         const offsetY = Math.cos(angle*2)*1.5;
         p.style.transform = `translate(${radius*Math.cos(angle)+offsetX}px, ${radius*Math.sin(angle)+offsetY}px)`;
     });
@@ -154,7 +183,7 @@ function updateCountdown(){
 const interval=setInterval(updateCountdown,1000);
 updateCountdown();
 
-// === Фоновый трек с фильтром + реверб, без дублирования ===
+// === Фоновый трек с фильтром + реверб ===
 let audioCtx, source, gainNode, convolver, filter, audioElement;
 document.body.addEventListener('click', startAudioOnce, {once:true});
 
@@ -168,17 +197,16 @@ function startAudioOnce(){
 
     // Реверб через ConvolverNode
     convolver = audioCtx.createConvolver();
-    // Простая импульсная реверб-волна (можно заменить реальной)
     const irBuffer = audioCtx.createBuffer(2, audioCtx.sampleRate*0.3, audioCtx.sampleRate);
     for(let channel=0; channel<irBuffer.numberOfChannels; channel++){
         const nowBuffering = irBuffer.getChannelData(channel);
         for(let i=0;i<irBuffer.length;i++){
-            nowBuffering[i] = (Math.random()*2-1)*0.2; // мягкий реверб
+            nowBuffering[i] = (Math.random()*2-1)*0.2;
         }
     }
     convolver.buffer = irBuffer;
 
-    // Фильтр (lowpass, «под водой» эффект)
+    // Фильтр (lowpass)
     filter = audioCtx.createBiquadFilter();
     filter.type = "lowpass";
     filter.frequency.value = 1200;
@@ -188,15 +216,14 @@ function startAudioOnce(){
     gainNode.gain.value = 0.25;
 
     source.connect(convolver).connect(filter).connect(gainNode).connect(audioCtx.destination);
-    source.connect(filter).connect(gainNode).connect(audioCtx.destination); // чистый + реверб
+    source.connect(filter).connect(gainNode).connect(audioCtx.destination);
 
     audioElement.play();
 
-    // Зацикливание 20 секунд
     setInterval(()=>{ if(audioElement.currentTime>=20) audioElement.currentTime=0; },50);
 }
 
-// === Мягкий глитч-свет частиц ===
+// === Пульс частиц и обложки в такт BPM ===
 const bpm = 135;
 const beatInterval = 60000 / bpm;
 setInterval(()=>{
@@ -205,6 +232,7 @@ setInterval(()=>{
         p.style.opacity = glow;
         p.style.filter = `drop-shadow(0 0 ${5+glow*8}px #66b3ff)`;
     });
+    document.getElementById('cover').style.transform = `scale(${1+glow*0.02})`; // мягкий пульс
 }, beatInterval/2);
 
 // === Мягкая тряска экрана ===
@@ -214,6 +242,10 @@ setInterval(()=>{
     document.body.style.transform = shakeToggle ? 'translate(0.7px,0.3px)' : 'translate(-0.7px,-0.3px)';
 }, beatInterval/2);
 
+// === Реакция мыши на обложку ===
+const coverEl = document.getElementById('cover');
+coverEl.addEventListener('mouseenter', ()=>{ coverEl.style.boxShadow='0 0 80px #66b3ff'; });
+coverEl.addEventListener('mouseleave', ()=>{ coverEl.style.boxShadow='0 0 60px rgba(0,50,120,0.4)'; });
 </script>
 
 </body>
