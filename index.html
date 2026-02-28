@@ -4,13 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TIMESTOP — 5tarcry</title>
+
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+
 <style>
-* { margin:0; padding:0; box-sizing:border-box; }
-body {
-    background:#000a15;
+*{margin:0;padding:0;box-sizing:border-box;}
+
+body{
+    background:#00040f;
     color:white;
-    font-family:'Orbitron', sans-serif;
+    font-family:'Orbitron',sans-serif;
     overflow:hidden;
     height:100vh;
     display:flex;
@@ -18,259 +21,273 @@ body {
     align-items:center;
     flex-direction:column;
     perspective:800px;
-    cursor:pointer;
 }
-.stars { position:fixed; width:100%; height:100%; z-index:-5; overflow:hidden; }
-.star { position:absolute; width:2px; height:2px; background:#0f1f3a; border-radius:50%; opacity:0.6; animation: twinkle 3s infinite alternate; }
-@keyframes twinkle { 0% { opacity:0.3; transform: scale(0.5);} 50% { opacity:0.9; transform: scale(1.2);} 100% { opacity:0.3; transform: scale(0.5);} }
-.cosmic-fog { position:fixed; top:0; left:0; width:100%; height:100%; background: radial-gradient(circle at 30% 30%, rgba(10,20,40,0.05), transparent 70%); z-index:-4; pointer-events:none; animation: fogMove 60s linear infinite; }
-@keyframes fogMove { 0%{ background-position:0 0; } 100%{ background-position:200% 200%; } }
-.content { text-align:center; z-index:1; position:relative; }
-.cover-container { position:relative; display:inline-block; }
-.cover { width:320px; border-radius:20px; box-shadow:0 0 60px rgba(0,50,120,0.4); animation: slowFloat 35s ease-in-out infinite alternate, coverPulse 1s ease-in-out infinite alternate; position:relative; z-index:2; transition: box-shadow 0.5s ease-in-out, transform 0.3s ease-in-out; }
-@keyframes slowFloat { 0% { transform: translateY(-2px);} 50% { transform: translateY(2px);} 100% { transform: translateY(-2px);} }
-@keyframes coverPulse { 0%{ transform:scale(1);} 50%{ transform:scale(1.01);} 100%{ transform:scale(1);} }
-.particle-orbit { position:absolute; width:4px; height:4px; background:#0f1f3a; border-radius:50%; opacity:0.5; transform-origin:center; filter: drop-shadow(0 0 5px #1e3a5f); transition: box-shadow 0.3s ease, opacity 0.3s ease; }
-.orbit-circle { position:absolute; border:1px solid #1e3a5f; border-radius:50%; opacity:0.15; width:100%; height:100%; top:0; left:0; pointer-events:none; }
-h1 { font-size:3em; margin-bottom:10px; letter-spacing:3px; text-shadow:0 0 30px #1e3a5f,0 0 50px #1e3a5f; animation: neonPulse 2s ease-in-out infinite alternate; transition: all 0.6s ease-out; }
-h3 { font-size:1.5em; margin-bottom:20px; text-shadow:0 0 20px #1e3a5f; animation: neonPulse 2s ease-in-out infinite alternate-reverse; transition: all 0.6s ease-out; }
-@keyframes neonPulse { from { text-shadow:0 0 15px #1e3a5f;} to { text-shadow:0 0 40px #66b3ff;} }
-button { margin-top:20px; padding:15px 50px; background:#001022; color:#1e3a5f; border:none; font-size:18px; border-radius:50px; cursor:pointer; transition:0.5s; }
-button:hover { background:#001144; color:#66b3ff; transform: scale(1.1); }
-#countdown { font-size:2em; margin-top:20px; text-shadow:0 0 30px #1e3a5f,0 0 50px #1e3a5f; animation: neonPulse 2s ease-in-out infinite alternate; }
-.falling-star { position:absolute; width:2px; height:2px; background:white; border-radius:50%; opacity:0.8; pointer-events:none; }
-canvas#mouseCanvas { position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:10; }
 
-/* Мини-панель Listen Now */
-#listenPanel { position:absolute; background:#001022; padding:15px 20px; border-radius:20px; display:flex; gap:10px; flex-wrap:wrap; justify-content:center; opacity:0; transform:scale(0.8); transition:all 0.4s ease; pointer-events:none; z-index:15; }
-.platformBtn { color:white; padding:8px 14px; border-radius:10px; text-decoration:none; display:flex; align-items:center; gap:6px; transition:0.3s; font-size:0.9em; }
-.platformBtn:hover { transform:scale(1.05); }
+/* ===== STARS ===== */
+.stars{
+    position:fixed;
+    width:100%;
+    height:100%;
+    z-index:-5;
+    overflow:hidden;
+}
+.star{
+    position:absolute;
+    width:2px;
+    height:2px;
+    background:#66b3ff;
+    border-radius:50%;
+    opacity:0.6;
+    animation:twinkle 3s infinite alternate;
+}
+@keyframes twinkle{
+    0%{opacity:0.3;transform:scale(0.6);}
+    50%{opacity:1;transform:scale(1.3);}
+    100%{opacity:0.3;transform:scale(0.6);}
+}
+
+/* ===== CONTENT ===== */
+.content{text-align:center;z-index:2;position:relative;}
+
+h1{
+    font-size:3em;
+    margin-bottom:10px;
+    letter-spacing:3px;
+    text-shadow:0 0 20px #1e3a5f;
+    transition:0.6s ease;
+}
+h3{
+    margin-bottom:20px;
+    text-shadow:0 0 15px #1e3a5f;
+    transition:0.6s ease;
+}
+
+.cover-container{
+    position:relative;
+    display:inline-block;
+}
+
+.cover{
+    width:320px;
+    border-radius:20px;
+    box-shadow:0 0 50px rgba(0,50,120,0.4);
+    animation:coverPulse 6s ease-in-out infinite alternate;
+    transition:0.6s ease;
+}
+
+@keyframes coverPulse{
+    0%{transform:scale(1);}
+    100%{transform:scale(1.02);}
+}
+
+button{
+    margin-top:20px;
+    padding:15px 50px;
+    background:#001022;
+    color:#66b3ff;
+    border:none;
+    border-radius:50px;
+    font-size:18px;
+    cursor:pointer;
+    transition:0.4s;
+}
+button:hover{
+    transform:scale(1.1);
+    box-shadow:0 0 20px rgba(102,179,255,0.4);
+}
+
+#countdown{
+    margin-top:20px;
+    font-size:1.6em;
+}
+
+/* ===== PANEL ===== */
+#listenPanel{
+    position:absolute;
+    background:#001022;
+    padding:15px 20px;
+    border-radius:20px;
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    justify-content:center;
+    opacity:0;
+    transform:scale(0.8);
+    transition:0.4s ease;
+    pointer-events:none;
+    z-index:10;
+    overflow:hidden;
+}
+
+/* WAVE */
+#listenPanel::after{
+    content:"";
+    position:absolute;
+    top:0;
+    left:-150%;
+    width:120%;
+    height:100%;
+    background:linear-gradient(
+        120deg,
+        transparent 0%,
+        rgba(102,179,255,0.2) 45%,
+        rgba(102,179,255,0.4) 50%,
+        rgba(102,179,255,0.2) 55%,
+        transparent 100%
+    );
+    transform:skewX(-20deg);
+}
+#listenPanel.wave::after{
+    animation:lightWave 1.2s ease forwards;
+}
+@keyframes lightWave{
+    0%{left:-150%;}
+    100%{left:150%;}
+}
+
+/* ===== PLATFORM BUTTONS ===== */
+.platformBtn{
+    background:rgba(0,18,40,0.6);
+    border:1px solid rgba(102,179,255,0.2);
+    padding:10px 16px;
+    border-radius:12px;
+    text-decoration:none;
+    color:white;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-size:0.9em;
+    transition:0.3s ease;
+    animation:buttonBreath 4s infinite ease-in-out;
+}
+@keyframes buttonBreath{
+    0%{box-shadow:0 0 0px rgba(102,179,255,0);}
+    50%{box-shadow:0 0 12px rgba(102,179,255,0.15);}
+    100%{box-shadow:0 0 0px rgba(102,179,255,0);}
+}
+
+.platformBtn img{
+    width:18px;
+    height:18px;
+    object-fit:contain;
+    transition:0.3s ease;
+}
+
+.platformBtn:hover{
+    transform:translateY(-2px) scale(1.05);
+}
+.platformBtn:hover img{
+    transform:scale(1.1);
+    filter:brightness(1.2) drop-shadow(0 0 6px currentColor);
+}
+
+/* FIRM GLOW */
+.spotify:hover{box-shadow:0 0 20px rgba(29,185,84,0.6);}
+.apple:hover{box-shadow:0 0 20px rgba(255,255,255,0.6);}
+.soundcloud:hover{box-shadow:0 0 20px rgba(255,85,0,0.6);}
+.youtubemusic:hover,.lyrics:hover{box-shadow:0 0 20px rgba(255,0,0,0.6);}
+.yandex:hover{box-shadow:0 0 20px rgba(255,204,0,0.6);}
+
+canvas{position:fixed;top:0;left:0;pointer-events:none;}
 </style>
 </head>
 <body>
 
 <canvas id="mouseCanvas"></canvas>
 <div class="stars"></div>
-<div class="cosmic-fog"></div>
 
 <div class="content">
-    <h1>TIMESTOP</h1>
-    <h3>5tarcry</h3>
-    <div class="cover-container" id="cover-container">
-        <img src="cover.png" alt="Timestop Cover" class="cover" id="cover">
-        <div class="orbit-circle"></div>
-    </div>
-    <br>
-    <button id="listenBtn">LISTEN NOW</button>
-    <div id="countdown"></div>
+<h1 id="title">TIMESTOP</h1>
+<h3>5tarcry</h3>
+<div class="cover-container">
+<img src="cover.png" class="cover" id="cover">
+</div>
+<br>
+<button id="listenBtn">LISTEN NOW</button>
+<div id="countdown"></div>
 </div>
 
-<!-- Мини-панель -->
 <div id="listenPanel">
-  <a class="platformBtn" href="#"><img src="spotify-logo.png" style="width:18px;height:18px;"> Spotify</a>
-  <a class="platformBtn" href="#"><img src="apple-logo.png" style="width:18px;height:18px;"> Apple Music</a>
-  <a class="platformBtn" href="#"><img src="soundcloud-logo.png" style="width:18px;height:18px;"> SoundCloud</a>
-  <a class="platformBtn" href="#"><img src="youtube-logo.png" style="width:18px;height:18px;"> YouTube Music</a>
-  <a class="platformBtn" href="#"><img src="youtube-logo.png" style="width:18px;height:18px;"> YouTube Lyrics</a>
-  <a class="platformBtn" href="#"><img src="yandex-logo.png" style="width:18px;height:18px;"> Yandex Music</a>
+<a class="platformBtn spotify" href="#"><img src="spotify.png">Spotify</a>
+<a class="platformBtn apple" href="#"><img src="apple.png">Apple Music</a>
+<a class="platformBtn soundcloud" href="#"><img src="soundcloud.png">SoundCloud</a>
+<a class="platformBtn youtubemusic" href="#"><img src="youtubemusic.png">YouTube Music</a>
+<a class="platformBtn lyrics" href="#"><img src="youtube.png">YouTube Lyrics</a>
+<a class="platformBtn yandex" href="#"><img src="yandex.png">Yandex Music</a>
 </div>
 
 <script>
-// === Звёзды ===
-const starsCount = 120;
-const starsContainer = document.querySelector('.stars');
-for(let i=0;i<starsCount;i++){
-    const star = document.createElement('div');
-    star.className='star';
-    star.style.top=Math.random()*100+'%';
-    star.style.left=Math.random()*100+'%';
-    star.style.animationDuration=(Math.random()*3+2)+'s';
-    starsContainer.appendChild(star);
+/* STARS */
+const starsContainer=document.querySelector('.stars');
+for(let i=0;i<120;i++){
+let s=document.createElement('div');
+s.className='star';
+s.style.top=Math.random()*100+'%';
+s.style.left=Math.random()*100+'%';
+starsContainer.appendChild(s);
 }
 
-// === Частицы орбиты ===
-const coverContainer = document.getElementById('cover-container');
-const orbitParticleCount = 16;
-const particles = [];
-for(let i=0;i<orbitParticleCount;i++){
-    const p = document.createElement('div');
-    p.className='particle-orbit';
-    const radius = 60 + Math.random()*40;
-    const speed = 0.002 + Math.random()*0.0015;
-    const angleOffset = Math.random()*Math.PI*2;
-    p.dataset.radius = radius;
-    p.dataset.speed = speed;
-    p.dataset.angle = angleOffset;
-    coverContainer.appendChild(p);
-    particles.push(p);
-}
-
-// === Canvas mouse burst ===
-const canvas = document.getElementById('mouseCanvas');
-const ctx = canvas.getContext('2d');
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-window.addEventListener('resize', ()=>{ canvas.width = window.innerWidth; canvas.height = window.innerHeight; });
-const mouseStars = [];
-let mouseX = window.innerWidth/2;
-let mouseY = window.innerHeight/2;
-document.addEventListener('mousemove', e=>{
-    mouseX = e.clientX;
-    mouseY = e.clientY;
-    const count = 3 + Math.floor(Math.random()*3);
-    for(let i=0;i<count;i++){
-        const angle = Math.random()*Math.PI*2;
-        const speed = 2 + Math.random()*2;
-        const life = 60 + Math.random()*30;
-        mouseStars.push({x:mouseX,y:mouseY,size:1+Math.random()*2,opacity:0.6+Math.random()*0.4,angle,speed,life});
-    }
-});
-function animateMouseStars(){
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    for(let i=mouseStars.length-1;i>=0;i--){
-        const s = mouseStars[i];
-        s.x += Math.cos(s.angle)*s.speed;
-        s.y += Math.sin(s.angle)*s.speed;
-        s.opacity -= 0.01;
-        s.size *= 0.98;
-        s.life--;
-        if(s.life <=0 || s.opacity<=0 || s.x<0 || s.x>canvas.width || s.y<0 || s.y>canvas.height){ 
-            mouseStars.splice(i,1); continue; 
-        }
-        ctx.fillStyle = `rgba(102,179,255,${s.opacity})`;
-        ctx.beginPath();
-        ctx.arc(s.x,s.y,s.size,0,Math.PI*2);
-        ctx.fill();
-    }
-    requestAnimationFrame(animateMouseStars);
-}
-requestAnimationFrame(animateMouseStars);
-
-// === Анимация частиц вокруг обложки ===
-let lastTime = performance.now();
-function animateParticles(time){
-    const dt = time - lastTime;
-    lastTime = time;
-    particles.forEach(p=>{
-        let angle = parseFloat(p.dataset.angle);
-        angle += parseFloat(p.dataset.speed)*dt;
-        p.dataset.angle = angle;
-        const radius = parseFloat(p.dataset.radius);
-        let offsetX = Math.sin(angle*3)*1.5;
-        let offsetY = Math.cos(angle*2)*1.5;
-        const rect = coverContainer.getBoundingClientRect();
-        const px = rect.left + rect.width/2;
-        const py = rect.top + rect.height/2;
-        const dx = mouseX - (px + radius*Math.cos(angle));
-        const dy = mouseY - (py + radius*Math.sin(angle));
-        const dist = Math.sqrt(dx*dx+dy*dy);
-        const influence = Math.min(30/dist,0.5);
-        offsetX -= dx*influence;
-        offsetY -= dy*influence;
-        p.style.transform = `translate(${radius*Math.cos(angle)+offsetX}px, ${radius*Math.sin(angle)+offsetY}px)`;
-    });
-    requestAnimationFrame(animateParticles);
-}
-requestAnimationFrame(animateParticles);
-
-// === Обратный отсчёт ===
-const countdownEl = document.getElementById('countdown');
-const releaseDate = new Date('March 20, 2026 00:00:00').getTime();
-function updateCountdown(){
-    const now = new Date().getTime();
-    const distance = releaseDate - now;
-    if(distance<0){ countdownEl.innerHTML="🚀 RELEASED!"; clearInterval(interval); return; }
-    const days=Math.floor(distance/(1000*60*60*24));
-    const hours=Math.floor((distance%(1000*60*60*24))/(1000*60*60));
-    const minutes=Math.floor((distance%(1000*60*60))/(1000*60));
-    const seconds=Math.floor((distance%(1000*60))/1000);
-    countdownEl.innerHTML=`${days}d ${hours}h ${minutes}m ${seconds}s`;
-}
-const interval=setInterval(updateCountdown,1000);
-updateCountdown();
-
-// === Фоновый трек ===
-let audioCtx, source, gainNode, convolver, filter, audioElement;
-document.body.addEventListener('click', startAudioOnce, {once:true});
-function startAudioOnce(){
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    audioElement = new Audio('timestop.mp3');
-    audioElement.volume = 0.25;
-    source = audioCtx.createMediaElementSource(audioElement);
-    convolver = audioCtx.createConvolver();
-    const irBuffer = audioCtx.createBuffer(2, audioCtx.sampleRate*0.3, audioCtx.sampleRate);
-    for(let channel=0; channel<irBuffer.numberOfChannels; channel++){
-        const nowBuffering = irBuffer.getChannelData(channel);
-        for(let i=0;i<irBuffer.length;i++){ nowBuffering[i] = (Math.random()*2-1)*0.2; }
-    }
-    convolver.buffer = irBuffer;
-    filter = audioCtx.createBiquadFilter();
-    filter.type = "lowpass";
-    filter.frequency.value = 1200;
-    filter.Q.value = 1;
-    gainNode = audioCtx.createGain();
-    gainNode.gain.value = 0.25;
-    source.connect(convolver).connect(filter).connect(gainNode).connect(audioCtx.destination);
-    source.connect(filter).connect(gainNode).connect(audioCtx.destination);
-    audioElement.play();
-    setInterval(()=>{ if(audioElement.currentTime >= 21 || audioElement.currentTime < 7) audioElement.currentTime = 7; },50);
-}
-
-// === Пульс частиц в такт BPM ===
-const bpm = 135;
-const beatInterval = 60000 / bpm;
+/* COUNTDOWN */
+const releaseDate=new Date("March 20, 2026 00:00:00").getTime();
+const countdown=document.getElementById("countdown");
 setInterval(()=>{
-    const glow = 0.25 + Math.random()*0.15;
-    particles.forEach(p=>{ p.style.opacity = glow; p.style.filter = `drop-shadow(0 0 ${5+glow*8}px #66b3ff)`; });
-    cover.style.transform = `scale(${1+glow*0.02})`;
-}, beatInterval/2);
+let now=new Date().getTime();
+let dist=releaseDate-now;
+if(dist<0){countdown.innerHTML="RELEASED";return;}
+let d=Math.floor(dist/(1000*60*60*24));
+let h=Math.floor((dist%(1000*60*60*24))/(1000*60*60));
+let m=Math.floor((dist%(1000*60*60))/(1000*60));
+let s=Math.floor((dist%(1000*60))/1000);
+countdown.innerHTML=`${d}d ${h}h ${m}m ${s}s`;
+},1000);
 
-// === Падающая звезда раз в 10 секунд ===
-function createFallingStar(){
-    const star = document.createElement('div');
-    star.className='falling-star';
-    star.style.top='0px';
-    star.style.left=Math.random()*window.innerWidth+'px';
-    document.body.appendChild(star);
-    const angle = Math.random()*Math.PI/3 - Math.PI/6;
-    const speed = 3 + Math.random()*2;
-    let posX = parseFloat(star.style.left);
-    let posY = 0;
-    const anim = setInterval(()=>{
-        posX += Math.sin(angle)*speed;
-        posY += Math.cos(angle)*speed;
-        star.style.top = posY+'px';
-        star.style.left = posX+'px';
-        if(posY>window.innerHeight || posX<0 || posX>window.innerWidth){ star.remove(); clearInterval(anim); }
-    },16);
-}
-setInterval(createFallingStar,10000);
+/* AUDIO LOOP 7-21 */
+let audioCtx,newSource;
+document.body.addEventListener("click",()=>{
+audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+let audio=new Audio("timestop.mp3");
+audio.volume=0.25;
+newSource=audioCtx.createMediaElementSource(audio);
+let filter=audioCtx.createBiquadFilter();
+filter.type="lowpass";
+filter.frequency.value=1200;
+newSource.connect(filter).connect(audioCtx.destination);
+audio.play();
+setInterval(()=>{
+if(audio.currentTime>=21||audio.currentTime<7)audio.currentTime=7;
+},50);
+},{once:true});
 
-// === Мини-панель Listen Now ===
-const listenPanel = document.getElementById('listenPanel');
-listenBtn.addEventListener('click', e=>{
-    const rect = listenBtn.getBoundingClientRect();
-    listenPanel.style.top = (rect.top - 100) + 'px';
-    listenPanel.style.left = (rect.left + rect.width/2 - listenPanel.offsetWidth/2) + 'px';
-    listenPanel.style.pointerEvents = 'auto';
-    listenPanel.style.opacity = 1;
-    listenPanel.style.transform = 'scale(1)';
-    
-    cover.style.transition = 'all 0.4s ease-out';
-    cover.style.transform = 'translateY(-15px) scale(1.01) blur(1px)';
-    title.style.transition = 'all 0.4s ease-out';
-    title.style.transform = 'translateY(-15px) blur(0.5px)';
+/* PANEL */
+const btn=document.getElementById("listenBtn");
+const panel=document.getElementById("listenPanel");
+const cover=document.getElementById("cover");
+const title=document.getElementById("title");
+
+btn.addEventListener("click",(e)=>{
+let rect=btn.getBoundingClientRect();
+panel.style.top=(rect.top-120)+"px";
+panel.style.left=(rect.left+rect.width/2-panel.offsetWidth/2)+"px";
+panel.style.opacity=1;
+panel.style.transform="scale(1)";
+panel.style.pointerEvents="auto";
+
+panel.classList.remove("wave");
+void panel.offsetWidth;
+panel.classList.add("wave");
+
+cover.style.transform="translateY(-15px) scale(1.02)";
+title.style.transform="translateY(-15px)";
 });
 
-// скрытие при клике вне панели
-document.addEventListener('click', e=>{
-    if(!listenPanel.contains(e.target) && e.target !== listenBtn){
-        listenPanel.style.opacity = 0;
-        listenPanel.style.transform = 'scale(0.8)';
-        listenPanel.style.pointerEvents = 'none';
-        cover.style.transform = 'translateY(0) scale(1)';
-        title.style.transform = 'translateY(0) blur(0)';
-    }
+document.addEventListener("click",(e)=>{
+if(!panel.contains(e.target)&&e.target!==btn){
+panel.style.opacity=0;
+panel.style.transform="scale(0.8)";
+panel.style.pointerEvents="none";
+cover.style.transform="scale(1)";
+title.style.transform="translateY(0)";
+}
 });
 </script>
 </body>
