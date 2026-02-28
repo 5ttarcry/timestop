@@ -19,6 +19,7 @@ body {
     flex-direction:column;
     perspective:800px;
     transition: transform 0.05s;
+    cursor:pointer;
 }
 
 /* Звёзды */
@@ -37,11 +38,11 @@ body { animation: bgGradient 30s ease-in-out infinite; }
 .cover {
     width:320px; border-radius:20px;
     box-shadow:0 0 60px rgba(0,50,120,0.4);
-    animation: slowFloat 12s ease-in-out infinite alternate;
+    animation: slowFloat 25s ease-in-out infinite alternate; /* очень медленно */
     position:relative; z-index:2;
-    transition: box-shadow 0.3s ease-in-out;
+    transition: box-shadow 0.5s ease-in-out;
 }
-@keyframes slowFloat { 0% { transform: translateY(-8px);} 50% { transform: translateY(8px);} 100% { transform: translateY(-8px);} }
+@keyframes slowFloat { 0% { transform: translateY(-4px);} 50% { transform: translateY(4px);} 100% { transform: translateY(-4px);} }
 
 /* Частицы */
 .particle-orbit {
@@ -59,7 +60,7 @@ h3 { font-size:1.5em; margin-bottom:20px; text-shadow:0 0 20px #1e3a5f; animatio
 
 /* Кнопка */
 button { margin-top:20px; padding:15px 50px; background:#001022; color:#1e3a5f; border:none; font-size:18px; border-radius:50px; cursor:pointer; transition:0.5s; }
-button:hover { background:#001144; color:#66b3ff; transform: scale(1.15); }
+button:hover { background:#001144; color:#66b3ff; transform: scale(1.1); }
 
 /* Обратный отсчёт */
 #countdown { font-size:2em; margin-top:20px; text-shadow:0 0 30px #1e3a5f,0 0 50px #1e3a5f; animation: neonPulse 2s ease-in-out infinite alternate; }
@@ -129,8 +130,8 @@ function animateParticles(time){
         angle += parseFloat(p.dataset.speed)*dt;
         p.dataset.angle = angle;
         const radius = parseFloat(p.dataset.radius);
-        const offsetX = Math.sin(angle*3)*5;
-        const offsetY = Math.cos(angle*2)*5;
+        const offsetX = Math.sin(angle*3)*2; // уменьшено для минимализма
+        const offsetY = Math.cos(angle*2)*2;
         p.style.transform = `translate(${radius*Math.cos(angle)+offsetX}px, ${radius*Math.sin(angle)+offsetY}px)`;
     });
     requestAnimationFrame(animateParticles);
@@ -153,41 +154,44 @@ function updateCountdown(){
 const interval=setInterval(updateCountdown,1000);
 updateCountdown();
 
-// === Фоновый трек с ревербом, 20 сек зациклено ===
-const AudioContext = window.AudioContext || window.webkitAudioContext;
-const audioCtx = new AudioContext();
-const audioElement = new Audio('timestop.mp3');
-audioElement.loop = true;
-audioElement.currentTime = 0;
-audioElement.volume = 0.25; // чуть пониже
+// === Фоновый трек с ревербом, зациклен 20 секунд ===
+let audioCtx, track, gainNode, delay, audioElement;
+document.body.addEventListener('click', startAudioOnce, {once:true});
 
-const track = audioCtx.createMediaElementSource(audioElement);
-const gainNode = audioCtx.createGain();
-gainNode.gain.value = 0.25;
-const delay = audioCtx.createDelay();
-delay.delayTime.value = 0.08; // лёгкий реверб
-track.connect(delay).connect(gainNode).connect(audioCtx.destination);
-track.connect(gainNode).connect(audioCtx.destination);
-audioElement.play();
+function startAudioOnce(){
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    audioElement = new Audio('timestop.mp3');
+    audioElement.loop = true;
+    audioElement.currentTime = 0;
+    audioElement.volume = 0.25;
 
-// === Зацикливание 20 секунд ===
-setInterval(()=>{ if(audioElement.currentTime>=20) audioElement.currentTime=0; },50);
+    track = audioCtx.createMediaElementSource(audioElement);
+    gainNode = audioCtx.createGain();
+    gainNode.gain.value = 0.25;
+    delay = audioCtx.createDelay();
+    delay.delayTime.value = 0.08;
+    track.connect(delay).connect(gainNode).connect(audioCtx.destination);
+    track.connect(gainNode).connect(audioCtx.destination);
+    audioElement.play();
 
-// === Глитч-свет на минимализм ===
+    // зацикливание 20 секунд
+    setInterval(()=>{
+        if(audioElement.currentTime>=20) audioElement.currentTime=0;
+    },50);
+}
+
+// === Глитч-свет частиц минимализм ===
 const bpm = 135;
 const beatInterval = 60000 / bpm;
 setInterval(()=>{
-    const glow = 0.2 + Math.random()*0.3; // очень мягко
+    const glow = 0.25 + Math.random()*0.2; // мягко
     particles.forEach(p=>{
         p.style.opacity = glow;
         p.style.filter = `drop-shadow(0 0 ${5+glow*8}px #66b3ff)`;
     });
-    // мягкий пульс обложки
-    const cover = document.getElementById('cover');
-    cover.style.boxShadow = `0 0 ${40+glow*20}px rgba(0,102,255,${0.2+glow*0.3})`;
 }, beatInterval/2);
 
-// === Тряска экрана в такт ===
+// === Тряска экрана мягкая ===
 let shakeToggle = false;
 setInterval(()=>{
     shakeToggle = !shakeToggle;
