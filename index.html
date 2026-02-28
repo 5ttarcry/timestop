@@ -38,11 +38,11 @@ body { animation: bgGradient 30s ease-in-out infinite; }
 .cover {
     width:320px; border-radius:20px;
     box-shadow:0 0 60px rgba(0,50,120,0.4);
-    animation: slowFloat 25s ease-in-out infinite alternate; /* очень медленно */
+    animation: slowFloat 35s ease-in-out infinite alternate; /* супер медленно */
     position:relative; z-index:2;
     transition: box-shadow 0.5s ease-in-out;
 }
-@keyframes slowFloat { 0% { transform: translateY(-4px);} 50% { transform: translateY(4px);} 100% { transform: translateY(-4px);} }
+@keyframes slowFloat { 0% { transform: translateY(-2px);} 50% { transform: translateY(2px);} 100% { transform: translateY(-2px);} }
 
 /* Частицы */
 .particle-orbit {
@@ -96,7 +96,7 @@ for(let i=0;i<starsCount;i++){
     starsContainer.appendChild(star);
 }
 
-// === Орбитальные частицы с кривизной ===
+// === Частицы ===
 const coverContainer = document.getElementById('cover-container');
 const orbitParticleCount = 16;
 const particles = [];
@@ -120,7 +120,7 @@ document.addEventListener('mousemove', e=>{
     document.body.style.background = `radial-gradient(circle at ${50+x}% ${50+y}%, #00000d, #000018)`;
 });
 
-// === Анимация частиц с кривизной ===
+// === Анимация частиц ===
 let lastTime = performance.now();
 function animateParticles(time){
     const dt = time - lastTime;
@@ -130,8 +130,8 @@ function animateParticles(time){
         angle += parseFloat(p.dataset.speed)*dt;
         p.dataset.angle = angle;
         const radius = parseFloat(p.dataset.radius);
-        const offsetX = Math.sin(angle*3)*2; // уменьшено для минимализма
-        const offsetY = Math.cos(angle*2)*2;
+        const offsetX = Math.sin(angle*3)*1.5; // минимализм
+        const offsetY = Math.cos(angle*2)*1.5;
         p.style.transform = `translate(${radius*Math.cos(angle)+offsetX}px, ${radius*Math.sin(angle)+offsetY}px)`;
     });
     requestAnimationFrame(animateParticles);
@@ -154,48 +154,64 @@ function updateCountdown(){
 const interval=setInterval(updateCountdown,1000);
 updateCountdown();
 
-// === Фоновый трек с ревербом, зациклен 20 секунд ===
-let audioCtx, track, gainNode, delay, audioElement;
+// === Фоновый трек с фильтром + реверб, без дублирования ===
+let audioCtx, source, gainNode, convolver, filter, audioElement;
 document.body.addEventListener('click', startAudioOnce, {once:true});
 
 function startAudioOnce(){
     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     audioElement = new Audio('timestop.mp3');
     audioElement.loop = true;
-    audioElement.currentTime = 0;
     audioElement.volume = 0.25;
 
-    track = audioCtx.createMediaElementSource(audioElement);
+    source = audioCtx.createMediaElementSource(audioElement);
+
+    // Реверб через ConvolverNode
+    convolver = audioCtx.createConvolver();
+    // Простая импульсная реверб-волна (можно заменить реальной)
+    const irBuffer = audioCtx.createBuffer(2, audioCtx.sampleRate*0.3, audioCtx.sampleRate);
+    for(let channel=0; channel<irBuffer.numberOfChannels; channel++){
+        const nowBuffering = irBuffer.getChannelData(channel);
+        for(let i=0;i<irBuffer.length;i++){
+            nowBuffering[i] = (Math.random()*2-1)*0.2; // мягкий реверб
+        }
+    }
+    convolver.buffer = irBuffer;
+
+    // Фильтр (lowpass, «под водой» эффект)
+    filter = audioCtx.createBiquadFilter();
+    filter.type = "lowpass";
+    filter.frequency.value = 1200;
+    filter.Q.value = 1;
+
     gainNode = audioCtx.createGain();
     gainNode.gain.value = 0.25;
-    delay = audioCtx.createDelay();
-    delay.delayTime.value = 0.08;
-    track.connect(delay).connect(gainNode).connect(audioCtx.destination);
-    track.connect(gainNode).connect(audioCtx.destination);
+
+    source.connect(convolver).connect(filter).connect(gainNode).connect(audioCtx.destination);
+    source.connect(filter).connect(gainNode).connect(audioCtx.destination); // чистый + реверб
+
     audioElement.play();
 
-    // зацикливание 20 секунд
-    setInterval(()=>{
-        if(audioElement.currentTime>=20) audioElement.currentTime=0;
-    },50);
+    // Зацикливание 20 секунд
+    setInterval(()=>{ if(audioElement.currentTime>=20) audioElement.currentTime=0; },50);
 }
 
-// === Глитч-свет частиц минимализм ===
+// === Мягкий глитч-свет частиц ===
 const bpm = 135;
 const beatInterval = 60000 / bpm;
 setInterval(()=>{
-    const glow = 0.25 + Math.random()*0.2; // мягко
+    const glow = 0.25 + Math.random()*0.15;
     particles.forEach(p=>{
         p.style.opacity = glow;
         p.style.filter = `drop-shadow(0 0 ${5+glow*8}px #66b3ff)`;
     });
 }, beatInterval/2);
 
-// === Тряска экрана мягкая ===
+// === Мягкая тряска экрана ===
 let shakeToggle = false;
 setInterval(()=>{
     shakeToggle = !shakeToggle;
-    document.body.style.transform = shakeToggle ? 'translate(1px,0.5px)' : 'translate(-1px,-0.5px)';
+    document.body.style.transform = shakeToggle ? 'translate(0.7px,0.3px)' : 'translate(-0.7px,-0.3px)';
 }, beatInterval/2);
 
 </script>
